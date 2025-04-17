@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Lait82/cv-frontend.git
+[submodule "backend/flask_api"]
+	path = backend/flask_api
+	url = https://github.com/Lait82/portfolio.git
