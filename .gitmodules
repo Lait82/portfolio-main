@@ -3,7 +3,7 @@
 	url = https://github.com/Lait82/cv-frontend.git
 [submodule "backend/flask_api"]
 	path = backend/flask_api
-	url = https://github.com/Lait82/portfolio.git
+	url = https://github.com/Lait82/cv-flask-api.git
 [submodule "webserver"]
 	path = webserver
 	url = https://github.com/Lait82/portfolio-webserver.git
