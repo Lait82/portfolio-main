@@ -76,7 +76,7 @@ services:
       - /var/www/frontend:/var/www/frontend:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./webserver/media:/var/www/media:ro
-      - ./ssl:/etc/ssl
+      - ./webserver/ssl:/etc/ssl
     healthcheck:
       test: ["CMD-SHELL", "nginx -T 2>&1 | grep -q 'secure_link' || exit 1"]
       interval: 10s
