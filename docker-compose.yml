@@ -54,6 +54,8 @@ services:
   nginx:
     build:
       context: ./webserver
+      args:
+        - ENVIRONMENT=${ENVIRONMENT}
     container_name: nginx-container
     restart: unless-stopped
     depends_on:
