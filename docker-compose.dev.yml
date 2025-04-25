@@ -17,6 +17,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
+    networks:
+      - main_network
 
   api:
     container_name: flask-api-container
@@ -29,13 +31,14 @@ services:
     env_file:
       - .env
     volumes:
-      - ./backend/flask_api:/var/www/backend/flask_api
+      - .:/var/www
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2889/projects"]
       interval: 10s
       timeout: 55s
       retries: 5
-      
+    networks:
+      - main_network
     depends_on:
       db:
         condition: service_healthy
@@ -57,6 +60,8 @@ services:
         condition: service_healthy
     volumes:
       - frontend_build:/var/www/frontend/build
+    networks:
+      - main_network
 
   nginx:
     build:
@@ -82,8 +87,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - main_network
 
 
 volumes:
   mysql_data:
   frontend_build:
+
+networks:
+  main_network:
+    name: main_network
