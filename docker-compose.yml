@@ -1,81 +1,91 @@
 services:
-  db:
-    container_name: db-container
-    image: mysql:8.0
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3309:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    restart: unless-stopped
+    db:
+        container_name: db-container
+        image: mysql:8.0
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "mysqladmin",
+                    "ping",
+                    "-h",
+                    "localhost",
+                    "-u",
+                    "${MYSQL_USER}",
+                    "-p${MYSQL_PASSWORD}",
+                ]
+            interval: 5s
+            timeout: 10s
+            retries: 5
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        ports:
+            - "3309:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        restart: unless-stopped
 
-  api:
-    container_name: flask-api-container
-    build: 
-      context: ./backend/flask_api
-    # ports: # Esto es solo para Development
-    #   - "80:2889"
-    environment:
-      - FLASK_DEBUG=1
-    env_file:
-      - .env
-    volumes:
-      - ./backend/flask_api:/var/www/backend/flask_api
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2889/projects"]
-      interval: 10s
-      timeout: 55s
-      retries: 5
-      
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
+    api:
+        container_name: flask-api-container
+        build:
+            context: ./backend/flask_api
+        ports: # Esto es solo para Development
+            - 2889:2889
+        environment:
+            - FLASK_DEBUG=1
+        env_file:
+            - .env
+        volumes:
+            - ./backend/flask_api:/var/www/backend/flask_api
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:2889/projects"]
+            interval: 10s
+            timeout: 55s
+            retries: 5
 
-  # front:
-  #   container_name: frontend-container
-  #   build: 
-  #     context: frontend
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
-  #   volumes:
-  #     - frontend_build:/var/www/frontend/build
+        depends_on:
+            db:
+                condition: service_healthy
+        restart: unless-stopped
 
-  nginx:
-    build:
-      context: ./webserver
-      args:
-        - ENVIRONMENT=${ENVIRONMENT}
-    container_name: nginx-container
-    restart: unless-stopped
-    depends_on:
-      api:
-        condition: service_healthy
-    ports: 
-      - 80:80
-      - 443:443
-    volumes:
-      # - frontend_build:/var/www/frontend:ro
-      - /var/www/frontend:/var/www/frontend:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - ./webserver/media:/var/www/media:ro
-    healthcheck:
-      test: ["CMD-SHELL", "nginx -T 2>&1 | grep -q 'secure_link' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+    # front:
+    #   container_name: frontend-container
+    #   build:
+    #     context: frontend
+    #   depends_on:
+    #     api:
+    #       condition: service_healthy
+    #   volumes:
+    #     - frontend_build:/var/www/frontend/build
 
+    nginx:
+        build:
+            context: ./webserver
+            args:
+                - ENVIRONMENT=${ENVIRONMENT}
+        container_name: nginx-container
+        restart: unless-stopped
+        depends_on:
+            api:
+                condition: service_healthy
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            # - frontend_build:/var/www/frontend:ro
+            - /var/www/frontend:/var/www/frontend:ro
+            - /etc/letsencrypt:/etc/letsencrypt:ro
+            - ./webserver/media:/var/www/media:ro
+        healthcheck:
+            test:
+                ["CMD-SHELL", "nginx -T 2>&1 | grep -q 'secure_link' || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
 
 volumes:
-  mysql_data:
-  # frontend_build:
+    mysql_data:
+    # frontend_build:
